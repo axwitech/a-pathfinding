@@ -1,7 +1,7 @@
 require "./node.rb"
 
-$w = 7
-$h = 5
+$w = 5
+$h = 7
 $map = Array.new($w){Array.new($h)}
 $start_point
 $end_point
@@ -18,7 +18,7 @@ def create_map
     end
   end
 end
-#node.neighbor.push($map[row_index-1][col_index])
+
 def update_neighbors
   $w.times do |x|
     $h.times do |y|
@@ -73,21 +73,45 @@ def print_out_map
       else
         print "#"
       end
-      #puts node.passable
     end
     puts " "
   end
 end
 
-def find_path(star_point,end_point)
-    $start_point = map[2][1]
-    $end_point = map[2][5]
+def find_path()
+    $start_point = $map[2][1]
+    $end_point = $map[2][5]
     $openlist << $start_point
+      for node in $openlist
+        puts "i am node #{node.x} #{node.y}"
+        for neighbor in node.neighbor
+          neighbor.hscore = calculate_h_score(neighbor.x,neighbor.y,$end_point.x,$end_point.y)
+          if(node.x != neighbor.x && node.y != neighbor.y)
+            neighbor.gscore = 14
+          end
+          neighbor.fscore = neighbor.gscore + neighbor.hscore
+          neighbor.parent = node
+          puts "i am neighbor #{neighbor.x} #{neighbor.y}"
+          puts "my gscore is #{neighbor.gscore}"
+          puts "my hscore is #{neighbor.hscore}"
+          puts "my fscore is #{neighbor.fscore}"
+          puts "my parent is #{neighbor.parent.x} #{neighbor.parent.y}"
+          if neighbor.passable
+            $closedlist << node
+          end
+        end
+      end
 end
+
+def calculate_h_score(startx,starty,endx,endy)
+  return ((startx-endx).abs + (starty-endy).abs)*10
+end
+
 
 
 create_map()
 edit_map()
 update_neighbors()
-print_out_map
-puts $map[1][1].neighbor
+print_out_map()
+find_path()
+puts calculate_h_score(2,2,2,4)

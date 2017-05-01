@@ -1,9 +1,10 @@
 class Node
-attr_accessor :passable, :score, :gscore, :kscore, :name, :x, :y, :parent, :neighbor
+attr_accessor :passable, :fscore, :gscore, :hscore, :name, :x, :y, :parent, :neighbor
 
   def initialize
     @passable = true
     @neighbor = []
+    @gscore = 10
   end
 
 end
