@@ -5,7 +5,7 @@ $h = 7
 $map = Array.new($w){Array.new($h)}
 $start_point
 $end_point
-$openlist = []
+$openlist = Hash.new
 $closedlist = []
 
 
@@ -81,26 +81,42 @@ end
 def find_path()
     $start_point = $map[2][1]
     $end_point = $map[2][5]
-    $openlist << $start_point
-      for node in $openlist
-        puts "i am node #{node.x} #{node.y}"
-        for neighbor in node.neighbor
-          neighbor.hscore = calculate_h_score(neighbor.x,neighbor.y,$end_point.x,$end_point.y)
-          if(node.x != neighbor.x && node.y != neighbor.y)
+    $start_point.fscore = 0
+    $openlist[$start_point] = 0
+
+    loop do
+      current = $openlist.key($openlist.values.min)
+      $closedlist << current
+      $openlist.delete(current)
+
+      for neighbor in current.neighbor
+        puts "i am neighbor #{neighbor.x} #{neighbor.y}"
+        if(neighbor.passable == false || $closedlist.include?(neighbor))
+          puts "neighbor #{neighbor.x} #{neighbor.y} is not passable or is already on the closedlist"
+
+        elsif($openlist.include?(neighbor) == false)
+          puts "i am neighbor #{neighbor.x} #{neighbor.y} and i am not on the open list yet "
+          if(neighbor.x != current.x && neighbor.y != current.y)
             neighbor.gscore = 14
           end
+          neighbor.hscore = calculate_h_score(neighbor.x,neighbor.y,$end_point.x,$end_point.y)
           neighbor.fscore = neighbor.gscore + neighbor.hscore
-          neighbor.parent = node
-          puts "i am neighbor #{neighbor.x} #{neighbor.y}"
-          puts "my gscore is #{neighbor.gscore}"
-          puts "my hscore is #{neighbor.hscore}"
-          puts "my fscore is #{neighbor.fscore}"
-          puts "my parent is #{neighbor.parent.x} #{neighbor.parent.y}"
-          if neighbor.passable
-            $closedlist << node
+          $openlist[neighbor] = neighbor.fscore
+
+        elsif($openlist.include?(neighbor))
+          puts "i am neighbor #{neighbor.x} #{neighbor.y} and i am  on the open list"
+          if(neighbor.gscore < current.gscore)
+            if(neighbor.x != current.x && neighbor.y != current.y)
+              neighbor.gscore = 14
+            end
+            neighbor.hscore = calculate_h_score(neighbor.x,neighbor.y,$end_point.x,$end_point.y)
+            neighbor.fscore = neighbor.gscore + neighbor.hscore
+            $openlist[neighbor] = neighbor.fscore
           end
         end
       end
+      break if $closedlist.include?($end_point)
+    end
 end
 
 def calculate_h_score(startx,starty,endx,endy)
@@ -112,6 +128,6 @@ end
 create_map()
 edit_map()
 update_neighbors()
-print_out_map()
+
 find_path()
-puts calculate_h_score(2,2,2,4)
+print_out_map()
