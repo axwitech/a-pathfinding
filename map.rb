@@ -88,32 +88,34 @@ def find_path()
       current = $openlist.key($openlist.values.min)
       $closedlist << current
       $openlist.delete(current)
-
+      puts(current.neighbor)
       for neighbor in current.neighbor
-        puts "i am neighbor #{neighbor.x} #{neighbor.y}"
-        if(neighbor.passable == false || $closedlist.include?(neighbor))
-          puts "neighbor #{neighbor.x} #{neighbor.y} is not passable or is already on the closedlist"
-
-        elsif($openlist.include?(neighbor) == false)
-          puts "i am neighbor #{neighbor.x} #{neighbor.y} and i am not on the open list yet "
-          if(neighbor.x != current.x && neighbor.y != current.y)
-            neighbor.gscore = 14
-          end
-          neighbor.hscore = calculate_h_score(neighbor.x,neighbor.y,$end_point.x,$end_point.y)
-          neighbor.fscore = neighbor.gscore + neighbor.hscore
-          $openlist[neighbor] = neighbor.fscore
-
-        elsif($openlist.include?(neighbor))
-          puts "i am neighbor #{neighbor.x} #{neighbor.y} and i am  on the open list"
-          if(neighbor.gscore < current.gscore)
-            if(neighbor.x != current.x && neighbor.y != current.y)
-              neighbor.gscore = 14
+          if($closedlist.include?(neighbor)==false && neighbor.passable)
+            if($openlist.include?(neighbor))
+              neighbor.hscore = calculate_h_score(current.x,current.y,$end_point.x,$end_point.y)
+              neighbor.gscore += 10
+              neighbor.parent = current
+              if(neighbor.x != current.x && neighbor.y != current.y)
+                neighbor.gscore += 14
+              end
+              neighbor.fscore = neighbor.fscore + neighbor.hscore
+              $openlist[neighbor] = neighbor.fscore
+            else
+              neighbor.hscore = calculate_h_score(current.x,current.y,$end_point.x,$end_point.y)
+              neighbor.gscore += 10
+              if(neighbor.x != current.x && neighbor.y != current.y)
+                neighbor.gscore += 14
+              end
+              tempG = current.gscore + neighbor.gscore
+              if(tempG < neighbor.gscore)
+                neighbor.parent = current
+                neighbor.gscore = tempG
+                neighbor.hscore = calculate_h_score(current.x,current.y,$end_point.x,$end_point.y)
+                neighbor.fscore = neighbor.fscore + neighbor.hscore
+                $openlist[neighbor] = neighbor.fscore
+              end
             end
-            neighbor.hscore = calculate_h_score(neighbor.x,neighbor.y,$end_point.x,$end_point.y)
-            neighbor.fscore = neighbor.gscore + neighbor.hscore
-            $openlist[neighbor] = neighbor.fscore
           end
-        end
       end
       break if $closedlist.include?($end_point)
     end
