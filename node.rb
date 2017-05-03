@@ -4,7 +4,7 @@ attr_accessor :passable, :fscore, :gscore, :hscore, :name, :x, :y, :parent, :nei
   def initialize
     @passable = true
     @neighbor = []
-    @gscore = 10
+    @gscore = 0
   end
 
 end
